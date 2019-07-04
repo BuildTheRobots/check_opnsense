@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/opt/local/bin/python3.7
 # -*- coding: utf-8 -*-
 
 # ------------------------------------------------------------------------------
@@ -122,6 +122,8 @@ class CheckOPNsense:
 
         if self.options.mode == 'updates':
             self.checkUpdates()
+        elif self.options.mode == 'haproxy':
+            self.checkHAproxy()
         else:
             message = "Check mode '{}' not known".format(self.options.mode)
             self.output(NagiosState.UNKNOWN, message)
@@ -144,7 +146,7 @@ class CheckOPNsense:
         check_opts = p.add_argument_group('Check Options')
 
         check_opts.add_argument("-m", "--mode",
-                                choices=('updates',),
+                                choices=('updates','haproxy',),
                                 required=True,
                                 help="Mode to use.")
         check_opts.add_argument('-w', '--warning', dest='treshold_warning', type=float,
@@ -155,6 +157,12 @@ class CheckOPNsense:
         options = p.parse_args()
 
         self.options = options
+
+    def checkHAproxy(self):
+        url = self.getURL('haproxy/service/status')
+        data = self.request(url)
+        if data['status'] == 'running':
+            self.checkMessage = "HAproxy is running"
 
     def checkUpdates(self):
         url = self.getURL('core/firmware/status')
