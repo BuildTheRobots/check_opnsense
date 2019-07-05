@@ -165,7 +165,7 @@ class CheckOPNsense:
         data = self.request(url)
         if data['status'] == 'running':
             self.checkMessage = "Monit is running"
-        else
+        else:
             self.checkResult = NagiosState.CRITICAL
             self.checkMessage = "Monit is not running"
 
@@ -174,7 +174,7 @@ class CheckOPNsense:
         data = self.request(url)
         if data['status'] == 'running':
             self.checkMessage = "HAproxy is running"
-        else
+        else:
             self.checkResult = NagiosState.CRITICAL
             self.checkMessage = "HAproxy is not running"
 
