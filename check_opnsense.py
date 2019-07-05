@@ -124,6 +124,8 @@ class CheckOPNsense:
             self.checkUpdates()
         elif self.options.mode == 'haproxy':
             self.checkHAproxy()
+        elif self.options.mode == 'monit':
+            self.checkMonit()
         else:
             message = "Check mode '{}' not known".format(self.options.mode)
             self.output(NagiosState.UNKNOWN, message)
@@ -146,7 +148,7 @@ class CheckOPNsense:
         check_opts = p.add_argument_group('Check Options')
 
         check_opts.add_argument("-m", "--mode",
-                                choices=('updates','haproxy',),
+                                choices=('updates','haproxy','monit',),
                                 required=True,
                                 help="Mode to use.")
         check_opts.add_argument('-w', '--warning', dest='treshold_warning', type=float,
@@ -158,11 +160,23 @@ class CheckOPNsense:
 
         self.options = options
 
+    def checkMonit(self):
+        url = self.getURL('monit/service/status')
+        data = self.request(url)
+        if data['status'] == 'running':
+            self.checkMessage = "Monit is running"
+        else
+            self.checkResult = NagiosState.CRITICAL
+            self.checkMessage = "Monit is not running"
+
     def checkHAproxy(self):
         url = self.getURL('haproxy/service/status')
         data = self.request(url)
         if data['status'] == 'running':
             self.checkMessage = "HAproxy is running"
+        else
+            self.checkResult = NagiosState.CRITICAL
+            self.checkMessage = "HAproxy is not running"
 
     def checkUpdates(self):
         url = self.getURL('core/firmware/status')
